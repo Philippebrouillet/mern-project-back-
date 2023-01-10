@@ -1,9 +1,6 @@
 const UserModel = require("../models/user.model");
-const fs = require("fs");
-const { promisify } = require("util");
 
-const pipeline = promisify(require("stream").pipeline);
-//const { uploadErrors } = require("../utils/errors.utils");
+console.log();
 
 module.exports.uploadProfil = async (req, res) => {
   try {
@@ -19,15 +16,9 @@ module.exports.uploadProfil = async (req, res) => {
     return res.status(201).json({ err });
   }
   const fileName = req.body.name + ".jpg";
-  await pipeline(
-    req.file.stream,
-    fs.createWriteStream(
-      `${__dirname}/../client/public/uploads/profil/${fileName}`
-    )
-  );
 
   try {
-    const updatedUser = await UserModel.findByIdAndUpdate(
+    await UserModel.findByIdAndUpdate(
       req.body.userId,
       { $set: { picture: "./uploads/profil/" + fileName } },
       {
@@ -36,16 +27,10 @@ module.exports.uploadProfil = async (req, res) => {
         upsert: true,
         setDefaultsOnInsert: true,
       }
-    );
-
-    if (updatedUser) {
-      res.send(updatedUser);
-    } else {
-      res.status(404).send({ message: "User not found" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "Error updating user" });
+    )
+      .then((data) => res.send(data))
+      .catch((err) => res.status(500).send({ message: err }));
+  } catch (err) {
+    return res.status(500).send({ message: err });
   }
-  console.log("alo");
 };

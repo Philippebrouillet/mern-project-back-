@@ -4,6 +4,16 @@ const userController = require("../controllers/user.controller");
 const uploadController = require("../controllers/upload.controller");
 const multer = require("multer");
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `${__dirname}/../client/public/uploads/profil/`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.name + ".jpg");
+  },
+});
+const upload = multer({ storage });
+
 // auth
 router.post("/register", authController.signUp);
 router.post("/login", authController.signIn);
@@ -19,6 +29,6 @@ router.patch("/unfollow/:id", userController.unfollow);
 
 //upload
 
-router.post("/upload", multer().single("file"), uploadController.uploadProfil);
+router.post("/upload", upload.single("file"), uploadController.uploadProfil);
 
 module.exports = router;

@@ -16,15 +16,7 @@ module.exports.readPost = (req, res) => {
 };
 
 module.exports.createPost = async (req, res) => {
-  let fileName = req.body.posterId + Date.now() + ".jpg";
-  try {
-    await pipeline(
-      req.file.Stream,
-      fs.createWriteStream(
-        `${__dirname}/../client/public/uploads/posts/${fileName}`
-      )
-    );
-  } catch (err) {}
+  const fileName = req.file.originalname;
 
   const newPost = new postModel({
     posterId: req.body.posterId,
